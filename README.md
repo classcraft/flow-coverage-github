@@ -1,4 +1,4 @@
-# Flow Coverage Compare
+# Flow Coverage Github
 
 Github action to compare flow coverage on a PR to the base branch.
 
@@ -27,7 +27,7 @@ The possible inputs for this action are:
 
 This config uses all the defaults, specifying nothing - it assumes you are using yarn, want to check all `.js` files, always want the check to pass, and just make a comment on your PR with the flow comparison.
 
-Note: The steps before `Run check` in this workflow are important! They checkout your head branch from your PR, and the base branch it wants to merge into.
+Note: The steps before `Run coverage report` in this workflow are important! They checkout your head branch from your PR, and the base branch it wants to merge into.
 
 ```yml
 name: Flow Coverage Compare
@@ -39,22 +39,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout head branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: head
       - name: Checkout base branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: base
           ref: ${{ github.base_ref }}
       - name: Install dependencies
         run: |
-          cd head
-          yarn
-          cd ../base
-          yarn
-      - name: Run check
-        uses: jackieo5023/flow-coverage-compare@v0.1
+          yarn global add flow-bin
+      - name: Run coverage report
+        uses: classcraft/flow-coverage-github@v0.0.1
 ```
 
 **Customizable config**
@@ -63,10 +60,10 @@ This config specifies 4 things:
 
 - You are using `npm`
 - Your flow config and `package.json` is under the path `client/`
-- You want to check _only_ the files under the `client/src` directory, ending in `.js`
+- You want to check _only_ the files under the `client/src` directory, ending in `.js` or `.jsx`
 - You want to fail the job if any file checked has a decline in flow coverage greater than or equal to 10%
 
-Note: You still need to include the steps before `Run check` with this workflow!
+Note: You still need to include the steps before `Run coverage report` with this workflow!
 
 ```yml
 name: Flow Coverage Compare
@@ -97,6 +94,6 @@ jobs:
         with:
           package-manager: npm
           path: client/
-          pattern: ^client/src\/.*.js$
+          pattern: ^.*\.(js|jsx)$
           threshold: 10
 ```
